@@ -45,14 +45,49 @@ fn main() -> ! {
         [0, 0, 1, 0, 0],
     ];
 
+    let blank_display_bitmap: [[u8; 5]; 5] = [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+    ];
+
+    let mut seq_count = 0;
+    let seq_count_max = 100;
+
     loop {
+        if seq_count >= seq_count_max {
+            seq_count = 0;
+        } else {
+            seq_count += 1;
+        }
+
         let left_pressed = button_a.is_low().unwrap();
         let right_pressed = button_b.is_low().unwrap();
         match (left_pressed, right_pressed) {
-            (false, false) => display.show(&mut timer, neutral_display_bitmap, 50),
-            (true, false) => display.show(&mut timer, left_display_bitmap, 50),
-            (false, true) => display.show(&mut timer, right_display_bitmap, 50),
-            (true, true) => display.show(&mut timer, neutral_display_bitmap, 50),
+            (false, false) => {
+                display.show(&mut timer, neutral_display_bitmap, 10);
+                seq_count = 0
+            }
+            (true, false) => {
+                if seq_count < 60 {
+                    display.show(&mut timer, left_display_bitmap, 10);
+                } else {
+                    display.show(&mut timer, blank_display_bitmap, 10);
+                }
+            }
+            (false, true) => {
+                if seq_count < 60 {
+                    display.show(&mut timer, right_display_bitmap, 10);
+                } else {
+                    display.show(&mut timer, blank_display_bitmap, 10);
+                }
+            }
+            (true, true) => {
+                display.show(&mut timer, neutral_display_bitmap, 10);
+                seq_count = 0
+            }
         }
     }
 }
